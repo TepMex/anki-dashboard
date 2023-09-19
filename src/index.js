@@ -1,6 +1,7 @@
 import React from "react";
 import ReactDOM from "react-dom/client";
 import "./index.css";
+import "react-calendar-heatmap/dist/styles.css";
 import App from "./App";
 import reportWebVitals from "./reportWebVitals";
 import AnkiConnect from "./AnkiConnect";
@@ -19,14 +20,20 @@ async function loadDashboardData() {
   console.log(cardsArray);
   let intervals = await ankiConnector.getIntervals(cardsArray);
   console.log(intervals);
-  return intervals.filter((interval) => interval >= 7).length;
+  return {
+    intervals: intervals.filter((interval) => interval >= 7).length,
+    reviewsStats,
+  };
 }
 async function init() {
-  let wordsMemorised = await loadDashboardData();
+  let dashboardData = await loadDashboardData();
   const root = ReactDOM.createRoot(document.getElementById("root"));
   root.render(
     <React.StrictMode>
-      <App wordsMemorised={wordsMemorised} />
+      <App
+        wordsMemorised={dashboardData.intervals}
+        ankiStats={dashboardData.reviewsStats}
+      />
     </React.StrictMode>
   );
 
