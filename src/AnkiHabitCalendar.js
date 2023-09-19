@@ -28,7 +28,6 @@ function classForValue(maxReviews) {
     [maxReviews * 0.1, 1],
   ];
   return function (item) {
-    console.log(item, maxReviews);
     if (!item) {
       return "color-empty";
     }
@@ -41,6 +40,13 @@ function classForValue(maxReviews) {
 
     return "color-empty";
   };
+}
+
+function titleForValue(item) {
+  if (!item) {
+    return `Didn't do some Anki this day`;
+  }
+  return `${item.count} cards was reviewed`;
 }
 
 function AnkiHabitCalendar({ ankiStats }) {
@@ -58,6 +64,7 @@ function AnkiHabitCalendar({ ankiStats }) {
       endDate={endDate}
       values={stats}
       classForValue={classForValue(maxReviews)}
+      titleForValue={titleForValue}
     />
   );
 }
