@@ -5,8 +5,20 @@ import "react-calendar-heatmap/dist/styles.css";
 import App from "./App";
 import reportWebVitals from "./reportWebVitals";
 import AnkiConnect from "./AnkiConnect";
+import TogglTrackConnector from "./TogglTrackConnector";
+import moment from "moment";
+import { calendarDataFromTogglEntries } from "./utils";
 
 async function loadDashboardData() {
+  const togglConnector = new TogglTrackConnector();
+  const startDate = moment().add(-1, "year").format("YYYY-MM-DD");
+  const endDate = moment().format("YYYY-MM-DD");
+  let togglReport = await togglConnector.getCSVReport(startDate, endDate);
+  let togglCalendarData = calendarDataFromTogglEntries(togglReport, [
+    /Chinese/,
+  ]);
+  console.log(togglCalendarData);
+
   const ankiConnector = new AnkiConnect();
 
   let reviewsStats = await ankiConnector.getNumCardsReviewedByDay();
@@ -23,6 +35,7 @@ async function loadDashboardData() {
   return {
     intervals: intervals.filter((interval) => interval >= 7).length,
     reviewsStats,
+    togglCalendarData,
   };
 }
 async function init() {
@@ -33,6 +46,7 @@ async function init() {
       <App
         wordsMemorised={dashboardData.intervals}
         ankiStats={dashboardData.reviewsStats}
+        togglData={dashboardData.togglCalendarData}
       />
     </React.StrictMode>
   );

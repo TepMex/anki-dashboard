@@ -1,20 +1,6 @@
 import moment from "moment";
 import ReactCalendarHeatmap from "react-calendar-heatmap";
 
-function convertAnkiStatToObj(stat) {
-  return {
-    date: stat[0],
-    count: stat[1],
-  };
-}
-
-function filterAnkiStatsLastYear(startDate, endDate) {
-  return function ({ date }) {
-    date = moment(date);
-    return date.isSameOrAfter(startDate) && date.isSameOrBefore(endDate);
-  };
-}
-
 function classForValue(maxReviews) {
   const gradeTable = [
     [maxReviews * 0.9, 9],
@@ -25,7 +11,7 @@ function classForValue(maxReviews) {
     [maxReviews * 0.4, 4],
     [maxReviews * 0.3, 3],
     [maxReviews * 0.2, 2],
-    [maxReviews * 0.1, 1],
+    [maxReviews * 0, 1],
   ];
   return function (item) {
     if (!item) {
@@ -44,29 +30,23 @@ function classForValue(maxReviews) {
 
 function titleForValue(item) {
   if (!item) {
-    return `Didn't do some Anki this day`;
+    return `Didn't study this day`;
   }
-  return `${item.date}:\n${item.count} cards was reviewed`;
+  return `${item.date}:\n${item.count} minutes spend on Chinese`;
 }
 
-function AnkiHabitCalendar({ ankiStats }) {
+function TogglChineseHabitCalendar({ calendarData }) {
   const startDate = moment().add(-1, "year");
   const endDate = moment();
-  let stats = ankiStats
-    .map(convertAnkiStatToObj)
-    .filter(filterAnkiStatsLastYear(startDate, endDate));
-  const maxReviews = ankiStats
-    .map((e) => e[1])
-    .reduce((a, b) => Math.max(a, b));
   return (
     <ReactCalendarHeatmap
       startDate={startDate}
       endDate={endDate}
-      values={stats}
-      classForValue={classForValue(maxReviews)}
+      values={calendarData.data}
+      classForValue={classForValue(calendarData.maxCount)}
       titleForValue={titleForValue}
     />
   );
 }
 
-export default AnkiHabitCalendar;
+export default TogglChineseHabitCalendar;
