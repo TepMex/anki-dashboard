@@ -43,3 +43,37 @@ export function calendarDataFromTogglEntries(csvEntries, regexList = [/.*/]) {
     maxCount,
   };
 }
+
+export function cardsByFirstReview(cardsReviewsObj) {
+  let cardsUnlockDates = [];
+
+  for (let card of Object.keys(cardsReviewsObj)) {
+    if (cardsReviewsObj[card].length === 0) {
+      continue;
+    }
+
+    let dates = cardsReviewsObj[card]
+      .sort((a, b) => a.id - b.id)
+      .map(({ id }) => id);
+    cardsUnlockDates.push(moment(dates[0]));
+  }
+
+  return function (momentDate) {
+    return cardsUnlockDates.reduce((a, b) => {
+      if (b.isBefore(momentDate)) {
+        return a + 1;
+      }
+      return a;
+    }, 0);
+  };
+}
+
+export function getDatesFromTo(momentFrom, momentTo) {
+  let result = [];
+  while (momentFrom.isSameOrBefore(momentTo)) {
+    result.push(moment(momentFrom));
+    momentFrom = momentFrom.add(1, "day");
+  }
+
+  return result;
+}

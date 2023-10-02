@@ -7,7 +7,11 @@ import reportWebVitals from "./reportWebVitals";
 import AnkiConnect from "./AnkiConnect";
 import TogglTrackConnector from "./TogglTrackConnector";
 import moment from "moment";
-import { calendarDataFromTogglEntries } from "./utils";
+import {
+  calendarDataFromTogglEntries,
+  cardsByFirstReview,
+  getDatesFromTo,
+} from "./utils";
 
 async function loadDashboardData() {
   const togglConnector = new TogglTrackConnector();
@@ -30,12 +34,26 @@ async function loadDashboardData() {
     "Refold Mandarin 1k Simplified"
   );
   console.log(cardsArray);
+
+  let cardReviewsArray = await ankiConnector.getAllReviewsForCards(cardsArray);
+  console.log("allReviews", cardReviewsArray);
+  let cardsInQueue = cardsByFirstReview(cardReviewsArray);
+  let timeTable = getDatesFromTo(moment().add(-1, "year"), moment());
+  let plotCsv = "";
+  let plotData = [];
+  for (let t of timeTable) {
+    plotCsv += t.format("YYYY-MM-DD") + "," + cardsInQueue(t) + "\n";
+    plotData.push([t.format("YYYY-MM-DD"), cardsInQueue(t)]);
+  }
+  console.log("plotCsv", plotCsv);
+
   let intervals = await ankiConnector.getIntervals(cardsArray);
   console.log(intervals);
   return {
     intervals: intervals.filter((interval) => interval >= 7).length,
     reviewsStats,
     togglCalendarData,
+    plotData,
   };
 }
 async function init() {
@@ -47,6 +65,7 @@ async function init() {
         wordsMemorised={dashboardData.intervals}
         ankiStats={dashboardData.reviewsStats}
         togglData={dashboardData.togglCalendarData}
+        plotData={dashboardData.plotData}
       />
     </React.StrictMode>
   );

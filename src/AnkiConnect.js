@@ -43,6 +43,15 @@ class AnkiConnect {
       action: "getNumCardsReviewedByDay",
     });
   }
+
+  async getAllReviewsForCards(cards) {
+    return await this.ankiRequest({
+      action: "getReviewsOfCards",
+      params: {
+        cards,
+      },
+    });
+  }
 }
 
 export default AnkiConnect;
