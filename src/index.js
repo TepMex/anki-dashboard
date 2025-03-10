@@ -5,11 +5,22 @@ import "react-calendar-heatmap/dist/styles.css";
 import App from "./App";
 import DashboardService from "./services/DashboardService";
 
+const STORAGE_KEY = "selectedAnkiDecks";
+
 function Dashboard() {
   const [data, setData] = useState(null);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState(null);
-  const [selectedDecks, setSelectedDecks] = useState([]);
+  const [selectedDecks, setSelectedDecks] = useState(() => {
+    // Initialize from localStorage
+    const savedDecks = localStorage.getItem(STORAGE_KEY);
+    return savedDecks ? JSON.parse(savedDecks) : [];
+  });
+
+  // Save to localStorage whenever selectedDecks changes
+  useEffect(() => {
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(selectedDecks));
+  }, [selectedDecks]);
 
   useEffect(() => {
     async function loadData() {
