@@ -1,5 +1,6 @@
 import moment from "moment";
 import ReactCalendarHeatmap from "react-calendar-heatmap";
+import "../styles/Calendar.css";
 
 function convertAnkiStatToObj(stat) {
   return {
@@ -50,7 +51,7 @@ function titleForValue(item) {
 }
 
 function AnkiHabitCalendar({ ankiStats }) {
-  const startDate = moment().add(-1, "year");
+  const startDate = moment().add(-2, "year");
   const endDate = moment();
   let stats = ankiStats
     .map(convertAnkiStatToObj)
@@ -59,13 +60,15 @@ function AnkiHabitCalendar({ ankiStats }) {
     .map((e) => e[1])
     .reduce((a, b) => Math.max(a, b));
   return (
-    <ReactCalendarHeatmap
-      startDate={startDate}
-      endDate={endDate}
-      values={stats}
-      classForValue={classForValue(maxReviews)}
-      titleForValue={titleForValue}
-    />
+    <div className="calendar-container">
+      <ReactCalendarHeatmap
+        startDate={startDate}
+        endDate={endDate}
+        values={stats}
+        classForValue={classForValue(maxReviews)}
+        titleForValue={titleForValue}
+      />
+    </div>
   );
 }
 

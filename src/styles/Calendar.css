@@ -1,0 +1,17 @@
+.react-calendar-heatmap {
+  width: 100% !important;
+  min-width: 800px;
+}
+
+.dashboard-section {
+  width: 90%;
+  max-width: 1200px;
+  margin: 20px auto;
+  padding: 20px;
+  background-color: #1a1a1a;
+  border-radius: 8px;
+}
+
+.color-empty {
+  fill: #1f1f1f;
+} 

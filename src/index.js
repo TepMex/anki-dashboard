@@ -1,79 +1,42 @@
-import React from "react";
+import React, { useState, useEffect } from "react";
 import ReactDOM from "react-dom/client";
-import "./index.css";
+import "./styles/index.css";
 import "react-calendar-heatmap/dist/styles.css";
 import App from "./App";
-import reportWebVitals from "./reportWebVitals";
-import AnkiConnect from "./AnkiConnect";
-import TogglTrackConnector from "./TogglTrackConnector";
-import moment from "moment";
-import {
-  calendarDataFromTogglEntries,
-  cardsByFirstReview,
-  getDatesFromTo,
-} from "./utils";
+import DashboardService from "./services/DashboardService";
 
-async function loadDashboardData() {
-  const togglConnector = new TogglTrackConnector();
-  const startDate = moment().add(-1, "year").format("YYYY-MM-DD");
-  const endDate = moment().format("YYYY-MM-DD");
-  let togglReport = await togglConnector.getCSVReport(startDate, endDate);
-  let togglCalendarData = calendarDataFromTogglEntries(togglReport, [
-    /Chinese/,
-  ]);
-  console.log(togglCalendarData);
+function Dashboard() {
+  const [data, setData] = useState(null);
+  const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState(null);
 
-  const ankiConnector = new AnkiConnect();
+  useEffect(() => {
+    async function loadData() {
+      try {
+        const dashboardData = await DashboardService.loadDashboardData();
+        setData(dashboardData);
+      } catch (err) {
+        setError(err);
+      } finally {
+        setIsLoading(false);
+      }
+    }
+    loadData();
+  }, []);
 
-  let reviewsStats = await ankiConnector.getNumCardsReviewedByDay();
-  console.log(reviewsStats);
-
-  let deckNamesAndIds = await ankiConnector.getDeckNamesAndIds();
-  console.log(deckNamesAndIds);
-  let cardsArray = await ankiConnector.getCardsForDeck(
-    "Refold Mandarin 1k Simplified"
-  );
-  console.log(cardsArray);
-
-  let cardReviewsArray = await ankiConnector.getAllReviewsForCards(cardsArray);
-  console.log("allReviews", cardReviewsArray);
-  let cardsInQueue = cardsByFirstReview(cardReviewsArray);
-  let timeTable = getDatesFromTo(moment().add(-1, "year"), moment());
-  let plotCsv = "";
-  let plotData = [];
-  for (let t of timeTable) {
-    plotCsv += t.format("YYYY-MM-DD") + "," + cardsInQueue(t) + "\n";
-    plotData.push([t.format("YYYY-MM-DD"), cardsInQueue(t)]);
-  }
-  console.log("plotCsv", plotCsv);
-
-  let intervals = await ankiConnector.getIntervals(cardsArray);
-  console.log(intervals);
-  return {
-    intervals: intervals.filter((interval) => interval >= 7).length,
-    reviewsStats,
-    togglCalendarData,
-    plotData,
-  };
-}
-async function init() {
-  let dashboardData = await loadDashboardData();
-  const root = ReactDOM.createRoot(document.getElementById("root"));
-  root.render(
+  return (
     <React.StrictMode>
       <App
-        wordsMemorised={dashboardData.intervals}
-        ankiStats={dashboardData.reviewsStats}
-        togglData={dashboardData.togglCalendarData}
-        plotData={dashboardData.plotData}
+        wordsMemorised={data?.intervals}
+        ankiStats={data?.reviewsStats}
+        togglData={data?.togglCalendarData}
+        plotData={data?.plotData}
+        isLoading={isLoading}
+        error={error}
       />
     </React.StrictMode>
   );
-
-  // If you want to start measuring performance in your app, pass a function
-  // to log results (for example: reportWebVitals(console.log))
-  // or send to an analytics endpoint. Learn more: https://bit.ly/CRA-vitals
-  reportWebVitals();
 }
 
-document.addEventListener("DOMContentLoaded", init);
+const root = ReactDOM.createRoot(document.getElementById("root"));
+root.render(<Dashboard />);

@@ -4,7 +4,7 @@ export function VocabProgressChart({ data }) {
     xaxis: {
       categories: data.map((d) => d[0]),
     },
-    colors: ["#ff8080"],
+    colors: ["#ff8080", "#ff0000"],
     theme: {
       mode: "dark",
     },
@@ -13,6 +13,10 @@ export function VocabProgressChart({ data }) {
     {
       name: "vocab",
       data: data.map((d) => d[1]),
+    },
+    {
+      name: "zalupa",
+      data: data.map((d) => d[1] - 10),
     },
   ];
 
