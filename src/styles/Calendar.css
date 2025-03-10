@@ -1,6 +1,7 @@
 .react-calendar-heatmap {
   width: 100% !important;
   min-width: 800px;
+  margin: 20px 0;
 }
 
 .dashboard-section {
@@ -14,4 +15,16 @@
 
 .color-empty {
   fill: #1f1f1f;
+}
+
+/* Make sure both calendars have consistent width */
+.react-calendar-heatmap .react-calendar-heatmap-month-labels,
+.react-calendar-heatmap .react-calendar-heatmap-all-weeks {
+  width: 100%;
+}
+
+/* Ensure the SVG container takes full width */
+.react-calendar-heatmap svg {
+  width: 100%;
+  height: auto;
 } 

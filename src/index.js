@@ -14,8 +14,10 @@ function Dashboard() {
     async function loadData() {
       try {
         const dashboardData = await DashboardService.loadDashboardData();
+        console.log("Loaded dashboard data:", dashboardData); // Debug log
         setData(dashboardData);
       } catch (err) {
+        console.error("Error loading dashboard data:", err); // Debug log
         setError(err);
       } finally {
         setIsLoading(false);
@@ -31,6 +33,7 @@ function Dashboard() {
         ankiStats={data?.reviewsStats}
         togglData={data?.togglCalendarData}
         plotData={data?.plotData}
+        mistakesData={data?.mistakesData}
         isLoading={isLoading}
         error={error}
       />

@@ -61,3 +61,39 @@ body::-webkit-scrollbar {
 .anki-color-scale-9 {
   fill: #ff0000;
 }
+
+.mistake-color-scale-1 {
+  fill: #ffebeb;
+}
+
+.mistake-color-scale-2 {
+  fill: #ffd6d6;
+}
+
+.mistake-color-scale-3 {
+  fill: #ffc2c2;
+}
+
+.mistake-color-scale-4 {
+  fill: #ffadad;
+}
+
+.mistake-color-scale-5 {
+  fill: #ff9999;
+}
+
+.mistake-color-scale-6 {
+  fill: #ff8585;
+}
+
+.mistake-color-scale-7 {
+  fill: #ff7070;
+}
+
+.mistake-color-scale-8 {
+  fill: #ff5c5c;
+}
+
+.mistake-color-scale-9 {
+  fill: #ff4747;
+}

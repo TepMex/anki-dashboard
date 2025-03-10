@@ -15,13 +15,16 @@ class DashboardService {
         this.getIntervalData(),
       ]);
 
-      const plotData = this.generatePlotData(deckData.cardReviewsArray);
+      const { plotData, mistakesData } = this.generatePlotData(
+        deckData.cardReviewsArray
+      );
 
       return {
         intervals: intervals.filter((interval) => interval >= 7).length,
         reviewsStats,
         togglCalendarData: null,
         plotData,
+        mistakesData,
       };
     } catch (error) {
       console.error("Error loading dashboard data:", error);
@@ -54,9 +57,42 @@ class DashboardService {
 
   generatePlotData(cardReviewsArray) {
     const cardsInQueue = cardsByFirstReview(cardReviewsArray);
+    const mistakesByDate = this.getMistakesByDate(cardReviewsArray);
     const timeTable = getDatesFromTo(moment().add(-2, "year"), moment());
 
-    return timeTable.map((t) => [t.format("YYYY-MM-DD"), cardsInQueue(t)]);
+    const plotData = timeTable.map((t) => [
+      t.format("YYYY-MM-DD"),
+      cardsInQueue(t),
+    ]);
+    const mistakesData = timeTable.map((t) => [
+      t.format("YYYY-MM-DD"),
+      mistakesByDate.get(t.format("YYYY-MM-DD")) || 0,
+    ]);
+
+    return { plotData, mistakesData };
+  }
+
+  getMistakesByDate(cardReviewsArray) {
+    const mistakesByDate = new Map();
+
+    // Process each card's reviews
+    Object.values(cardReviewsArray).forEach((reviews) => {
+      reviews.forEach((review) => {
+        // A review is considered a mistake if:
+        // 1. ease = 1 (Again button pressed) or
+        // 2. new interval is less than previous interval
+        const isMistake =
+          review.ease === 1 ||
+          (review.ivl < review.lastIvl && review.lastIvl > 0);
+
+        if (isMistake) {
+          const date = moment(review.id).format("YYYY-MM-DD");
+          mistakesByDate.set(date, (mistakesByDate.get(date) || 0) + 1);
+        }
+      });
+    });
+
+    return mistakesByDate;
   }
 }
 
