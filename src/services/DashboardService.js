@@ -26,6 +26,9 @@ class DashboardService {
     const cardsArrays = await Promise.all(cardsPromises);
     const cards = cardsArrays.flat();
 
+    // Get total number of cards
+    const totalCards = cards.length;
+
     // Get intervals for cards
     const intervals = await service.anki.getIntervals(cards);
 
@@ -104,6 +107,7 @@ class DashboardService {
       mistakesData,
       reviewsData,
       deckNamesAndIds,
+      totalCards,
     };
   }
 }

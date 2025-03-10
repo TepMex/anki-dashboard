@@ -9,9 +9,8 @@ export function VocabProgressChart({
     return <div>Loading chart data...</div>;
   }
 
-  // Find max value for proper scaling
-  let maxReviews = Math.max(...reviewsData.map((d) => d[1]));
-  maxReviews = Math.max(maxReviews, ...mistakesData.map((d) => d[1]));
+  // Find max value for proper scaling based on reviews
+  const maxReviews = Math.max(...reviewsData.map((d) => d[1]));
 
   const options = {
     chart: {
@@ -63,10 +62,12 @@ export function VocabProgressChart({
           style: {
             colors: "#aaa",
           },
+          formatter: (value) => Math.round(value), // Ensure whole numbers
         },
         min: 0,
         max: maxReviews,
-        tickAmount: 6,
+        tickAmount: 4,
+        floating: false,
       },
     ],
     colors: [

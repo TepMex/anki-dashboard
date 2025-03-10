@@ -2,11 +2,13 @@ import React from "react";
 import logo from "./assets/logo.svg";
 import "./styles/App.css";
 import "./styles/LoadingSpinner.css";
+import "./styles/ProgressBar.css";
 import AnkiHabitCalendar from "./components/AnkiHabitCalendar";
 import VocabProgressChart from "./components/VocabProgressChart";
 import LoadingSpinner from "./components/LoadingSpinner";
 import AnkiMistakesCalendar from "./components/AnkiMistakesCalendar";
 import DeckSelector from "./components/DeckSelector";
+import ProgressBar from "./components/ProgressBar";
 
 function App({
   wordsMemorised,
@@ -19,6 +21,7 @@ function App({
   onDecksChange,
   isLoading,
   error,
+  totalCards,
 }) {
   if (isLoading) {
     return <LoadingSpinner />;
@@ -43,6 +46,10 @@ function App({
     Array.isArray(mistakesData) &&
     Array.isArray(reviewsData);
 
+  const memorizedCount = Array.isArray(wordsMemorised)
+    ? wordsMemorised.filter((interval) => interval >= 7).length
+    : 0;
+
   return (
     <div className="App">
       <header className="App-header">
@@ -57,12 +64,10 @@ function App({
         </div>
         {selectedDecks.length > 0 && (
           <>
-            <div className="words-memorized">
-              Words memorised:{" "}
-              {Array.isArray(wordsMemorised)
-                ? wordsMemorised.filter((interval) => interval >= 7).length
-                : 0}
-            </div>
+            <ProgressBar
+              memorizedCount={memorizedCount}
+              totalCards={totalCards}
+            />
             <div className="dashboard-section">
               <h2>Vocab Learning Progress</h2>
               {hasValidData ? (

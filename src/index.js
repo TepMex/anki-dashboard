@@ -55,6 +55,7 @@ function Dashboard() {
         onDecksChange={setSelectedDecks}
         isLoading={isLoading}
         error={error}
+        totalCards={data?.totalCards || 0}
       />
     </React.StrictMode>
   );
