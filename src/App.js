@@ -13,6 +13,7 @@ function App({
   ankiStats,
   plotData,
   mistakesData,
+  reviewsData,
   deckNamesAndIds,
   selectedDecks,
   onDecksChange,
@@ -37,8 +38,10 @@ function App({
   const hasValidData =
     plotData &&
     mistakesData &&
+    reviewsData &&
     Array.isArray(plotData) &&
-    Array.isArray(mistakesData);
+    Array.isArray(mistakesData) &&
+    Array.isArray(reviewsData);
 
   return (
     <div className="App">
@@ -66,6 +69,7 @@ function App({
                 <VocabProgressChart
                   data={plotData}
                   mistakesData={mistakesData}
+                  reviewsData={reviewsData}
                 />
               ) : (
                 <div>No data available</div>

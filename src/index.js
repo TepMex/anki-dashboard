@@ -49,6 +49,7 @@ function Dashboard() {
         togglData={data?.togglCalendarData}
         plotData={data?.plotData}
         mistakesData={data?.mistakesData}
+        reviewsData={data?.reviewsData}
         deckNamesAndIds={data?.deckNamesAndIds}
         selectedDecks={selectedDecks}
         onDecksChange={setSelectedDecks}

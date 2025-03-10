@@ -1,9 +1,17 @@
 import Chart from "react-apexcharts";
 
-export function VocabProgressChart({ data = [], mistakesData = [] }) {
-  if (!data || !mistakesData) {
+export function VocabProgressChart({
+  data = [],
+  mistakesData = [],
+  reviewsData = [],
+}) {
+  if (!data || !mistakesData || !reviewsData) {
     return <div>Loading chart data...</div>;
   }
+
+  // Find max value for proper scaling
+  let maxReviews = Math.max(...reviewsData.map((d) => d[1]));
+  maxReviews = Math.max(maxReviews, ...mistakesData.map((d) => d[1]));
 
   const options = {
     chart: {
@@ -18,6 +26,7 @@ export function VocabProgressChart({ data = [], mistakesData = [] }) {
         easing: "easeinout",
         speed: 800,
       },
+      stacked: false,
     },
     xaxis: {
       categories: data.map((d) => d[0]),
@@ -45,7 +54,7 @@ export function VocabProgressChart({ data = [], mistakesData = [] }) {
       {
         opposite: true,
         title: {
-          text: "Review Mistakes",
+          text: "Reviews and Mistakes Count",
           style: {
             color: "#aaa",
           },
@@ -56,19 +65,25 @@ export function VocabProgressChart({ data = [], mistakesData = [] }) {
           },
         },
         min: 0,
+        max: maxReviews,
+        tickAmount: 6,
       },
     ],
-    colors: ["rgba(255, 64, 64, 0.8)", "rgba(255, 64, 64, 0.4)"],
+    colors: [
+      "rgba(255, 64, 64, 0.8)", // Words Learned - red area
+      "rgba(255, 64, 64, 0.9)", // Mistakes - bright red bars in foreground
+      "rgba(97, 218, 251, 0.3)", // Cards Reviewed - light blue bars in background
+    ],
     theme: {
       mode: "dark",
     },
     stroke: {
-      width: [3, 0],
+      width: [3, 0, 0],
       curve: "smooth",
       lineCap: "round",
     },
     fill: {
-      type: ["gradient", "solid"],
+      type: ["gradient", "solid", "solid"],
       gradient: {
         shade: "dark",
         type: "vertical",
@@ -87,7 +102,7 @@ export function VocabProgressChart({ data = [], mistakesData = [] }) {
           },
         ],
       },
-      opacity: [0.8, 0.4],
+      opacity: [0.8, 0.3, 0.9],
     },
     legend: {
       labels: {
@@ -103,21 +118,23 @@ export function VocabProgressChart({ data = [], mistakesData = [] }) {
       bar: {
         columnWidth: "50%",
         borderRadius: 3,
-        colors: {
-          ranges: [
-            {
-              from: 0,
-              to: 100,
-              color: "rgba(255, 64, 64, 0.4)",
-            },
-          ],
+        dataLabels: {
+          position: "top",
         },
       },
     },
     tooltip: {
       theme: "dark",
+      shared: true,
       x: {
         format: "dd MMM yyyy",
+      },
+      y: {
+        formatter: function (value, { seriesIndex }) {
+          if (seriesIndex === 0) return `${value} words learned`;
+          if (seriesIndex === 2) return `${value} cards reviewed`;
+          return `${value} mistakes`;
+        },
       },
     },
     responsive: [
@@ -142,9 +159,14 @@ export function VocabProgressChart({ data = [], mistakesData = [] }) {
       data: data.map((d) => d[1]),
     },
     {
-      name: "Review Mistakes",
+      name: "Mistakes",
       type: "bar",
       data: mistakesData.map((d) => d[1]),
+    },
+    {
+      name: "Cards Reviewed",
+      type: "bar",
+      data: reviewsData.map((d) => d[1]),
     },
   ];
 

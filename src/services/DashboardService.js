@@ -69,12 +69,26 @@ class DashboardService {
     const rangeEndDate = moment();
     let currentDate = firstReviewDate || rangeStartDate;
 
+    // Process reviewsStats into a map for easier lookup
+    const reviewsMap = new Map(
+      reviewsStats.map(([date, count]) => [
+        moment(date).format("YYYY-MM-DD"),
+        count,
+      ])
+    );
+
     while (currentDate.isSameOrBefore(rangeEndDate)) {
       const dateStr = currentDate.format("YYYY-MM-DD");
       plotData.push([dateStr, getWordsLearned(currentDate)]);
       mistakesData.push([dateStr, mistakesMap.get(dateStr) || 0]);
       currentDate.add(1, "day");
     }
+
+    // Create reviewsData array with the same dates as plotData
+    const reviewsData = plotData.map(([date]) => [
+      date,
+      reviewsMap.get(date) || 0,
+    ]);
 
     // Get Toggl data for the last year
     const startDate = rangeStartDate.format("YYYY-MM-DD");
@@ -88,6 +102,7 @@ class DashboardService {
       togglCalendarData,
       plotData,
       mistakesData,
+      reviewsData,
       deckNamesAndIds,
     };
   }
