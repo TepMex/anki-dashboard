@@ -1,99 +1,74 @@
 .App {
   text-align: center;
-}
-
-body::-webkit-scrollbar {
-  display: none;
-}
-
-.App-logo {
-  height: 40vmin;
-  pointer-events: none;
-}
-
-.App-header {
   background-color: #282c34;
   min-height: 100vh;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  font-size: calc(10px + 2vmin);
   color: white;
 }
 
-.App-link {
-  color: #61dafb;
+.App-header {
+  padding: 20px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
 }
 
-.anki-color-scale-1 {
-  fill: #ffcccc;
+.App-logo {
+  height: 80px;
+  pointer-events: none;
+  margin-bottom: 20px;
 }
 
-.anki-color-scale-2 {
-  fill: #ffb3b3;
+.dashboard-section {
+  width: 90%;
+  max-width: 1200px;
+  margin: 20px auto;
+  padding: 20px;
+  background-color: #1a1a1a;
+  border-radius: 8px;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
 }
 
-.anki-color-scale-3 {
-  fill: #ff9999;
+.deck-selector {
+  width: 100%;
+  max-width: 600px;
+  margin: 0 auto;
+  padding: 0 20px;
 }
 
-.anki-color-scale-4 {
-  fill: #ff8080;
+.deck-select {
+  color: white;
+  font-size: 16px;
 }
 
-.anki-color-scale-5 {
-  fill: #ff6666;
+.error-container {
+  text-align: center;
+  padding: 40px;
+  background-color: #1a1a1a;
+  border-radius: 8px;
+  margin: 20px;
 }
 
-.anki-color-scale-6 {
-  fill: #ff4d4d;
+.error-container button {
+  background-color: #61dafb;
+  color: #282c34;
+  border: none;
+  padding: 10px 20px;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 16px;
+  margin-top: 20px;
 }
 
-.anki-color-scale-7 {
-  fill: #ff3333;
+.error-container button:hover {
+  background-color: #4fa8d5;
 }
 
-.anki-color-scale-8 {
-  fill: #ff1a1a;
-}
-
-.anki-color-scale-9 {
-  fill: #ff0000;
-}
-
-.mistake-color-scale-1 {
-  fill: #ffebeb;
-}
-
-.mistake-color-scale-2 {
-  fill: #ffd6d6;
-}
-
-.mistake-color-scale-3 {
-  fill: #ffc2c2;
-}
-
-.mistake-color-scale-4 {
-  fill: #ffadad;
-}
-
-.mistake-color-scale-5 {
-  fill: #ff9999;
-}
-
-.mistake-color-scale-6 {
-  fill: #ff8585;
-}
-
-.mistake-color-scale-7 {
-  fill: #ff7070;
-}
-
-.mistake-color-scale-8 {
-  fill: #ff5c5c;
-}
-
-.mistake-color-scale-9 {
-  fill: #ff4747;
-}
+/* Fix for the words memorized display */
+.words-memorized {
+  font-size: 1.2em;
+  margin: 20px 0;
+  padding: 10px;
+  background-color: #1a1a1a;
+  border-radius: 4px;
+  display: inline-block;
+} 

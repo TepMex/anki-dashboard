@@ -50,13 +50,15 @@ function AnkiMistakesCalendar({ mistakesData = [] }) {
   const maxMistakes = Math.max(...mistakesData.map(([_, count]) => count));
 
   return (
-    <ReactCalendarHeatmap
-      startDate={startDate}
-      endDate={endDate}
-      values={calendarData}
-      classForValue={classForValue(maxMistakes)}
-      titleForValue={titleForValue}
-    />
+    <div className="widget-container">
+      <ReactCalendarHeatmap
+        startDate={startDate}
+        endDate={endDate}
+        values={calendarData}
+        classForValue={classForValue(maxMistakes)}
+        titleForValue={titleForValue}
+      />
+    </div>
   );
 }
 

@@ -1,100 +1,96 @@
-import moment from "moment";
 import AnkiConnect from "./AnkiConnect";
-import { cardsByFirstReview, getDatesFromTo } from "../utils";
+import TogglTrackConnector from "./TogglTrackConnector";
+import moment from "moment";
+import { cardsByFirstReview, calendarDataFromTogglEntries } from "../utils";
 
 class DashboardService {
   constructor() {
-    this.ankiConnector = new AnkiConnect();
+    this.anki = new AnkiConnect();
+    this.toggl = new TogglTrackConnector();
   }
 
-  async loadDashboardData() {
-    try {
-      const [reviewsStats, deckData, intervals] = await Promise.all([
-        this.getReviewStats(),
-        this.getDeckData(),
-        this.getIntervalData(),
-      ]);
+  static async loadDashboardData(selectedDecks = []) {
+    const service = new DashboardService();
 
-      const { plotData, mistakesData } = this.generatePlotData(
-        deckData.cardReviewsArray
-      );
+    // Get all deck names and IDs if no decks are selected
+    const deckNamesAndIds = await service.anki.getDeckNamesAndIds();
 
-      return {
-        intervals: intervals.filter((interval) => interval >= 7).length,
-        reviewsStats,
-        togglCalendarData: null,
-        plotData,
-        mistakesData,
-      };
-    } catch (error) {
-      console.error("Error loading dashboard data:", error);
-      throw error;
+    if (selectedDecks.length === 0) {
+      return { deckNamesAndIds };
     }
-  }
 
-  async getReviewStats() {
-    return await this.ankiConnector.getNumCardsReviewedByDay();
-  }
-
-  async getDeckData() {
-    const deckNamesAndIds = await this.ankiConnector.getDeckNamesAndIds();
-    const cardsArray = await this.ankiConnector.getCardsForDeck(
-      "Refold Mandarin 1k Simplified"
+    // Get cards for selected decks
+    const cardsPromises = selectedDecks.map((deckName) =>
+      service.anki.getCardsForDeck(deckName)
     );
-    const cardReviewsArray = await this.ankiConnector.getAllReviewsForCards(
-      cardsArray
-    );
+    const cardsArrays = await Promise.all(cardsPromises);
+    const cards = cardsArrays.flat();
 
-    return { deckNamesAndIds, cardsArray, cardReviewsArray };
-  }
+    // Get intervals for cards
+    const intervals = await service.anki.getIntervals(cards);
 
-  async getIntervalData() {
-    const cardsArray = await this.ankiConnector.getCardsForDeck(
-      "Refold Mandarin 1k Simplified"
-    );
-    return await this.ankiConnector.getIntervals(cardsArray);
-  }
+    // Get reviews stats
+    const reviewsStats = await service.anki.getNumCardsReviewedByDay();
 
-  generatePlotData(cardReviewsArray) {
-    const cardsInQueue = cardsByFirstReview(cardReviewsArray);
-    const mistakesByDate = this.getMistakesByDate(cardReviewsArray);
-    const timeTable = getDatesFromTo(moment().add(-2, "year"), moment());
+    // Get all reviews for cards to calculate mistakes
+    const cardReviews = await service.anki.getAllReviewsForCards(cards);
 
-    const plotData = timeTable.map((t) => [
-      t.format("YYYY-MM-DD"),
-      cardsInQueue(t),
-    ]);
-    const mistakesData = timeTable.map((t) => [
-      t.format("YYYY-MM-DD"),
-      mistakesByDate.get(t.format("YYYY-MM-DD")) || 0,
-    ]);
+    // Process reviews to get mistakes data
+    const mistakesMap = new Map();
 
-    return { plotData, mistakesData };
-  }
-
-  getMistakesByDate(cardReviewsArray) {
-    const mistakesByDate = new Map();
-
-    // Process each card's reviews
-    Object.values(cardReviewsArray).forEach((reviews) => {
-      reviews.forEach((review) => {
-        // A review is considered a mistake if:
-        // 1. ease = 1 (Again button pressed) or
-        // 2. new interval is less than previous interval
-        const isMistake =
-          review.ease === 1 ||
-          (review.ivl < review.lastIvl && review.lastIvl > 0);
-
-        if (isMistake) {
-          const date = moment(review.id).format("YYYY-MM-DD");
-          mistakesByDate.set(date, (mistakesByDate.get(date) || 0) + 1);
+    // First collect all mistakes
+    for (const entry of Object.entries(cardReviews)) {
+      for (const review of entry[1]) {
+        const date = moment(review.id).format("YYYY-MM-DD");
+        if (review.ease === 1) {
+          // ease of 1 indicates a mistake
+          mistakesMap.set(date, (mistakesMap.get(date) || 0) + 1);
         }
-      });
-    });
+      }
+    }
 
-    return mistakesByDate;
+    // Calculate plot data and mistakes data together to ensure alignment
+    const getWordsLearned = cardsByFirstReview(cardReviews);
+    const plotData = [];
+    const mistakesData = [];
+
+    // Use the earliest review date as the start date
+    let firstReviewDate = null;
+    for (const entry of Object.entries(cardReviews)) {
+      for (const review of entry[1]) {
+        const reviewDate = moment(review.id);
+        if (!firstReviewDate || reviewDate.isBefore(firstReviewDate)) {
+          firstReviewDate = reviewDate;
+        }
+      }
+    }
+
+    const rangeStartDate = moment().subtract(1, "year");
+    const rangeEndDate = moment();
+    let currentDate = firstReviewDate || rangeStartDate;
+
+    while (currentDate.isSameOrBefore(rangeEndDate)) {
+      const dateStr = currentDate.format("YYYY-MM-DD");
+      plotData.push([dateStr, getWordsLearned(currentDate)]);
+      mistakesData.push([dateStr, mistakesMap.get(dateStr) || 0]);
+      currentDate.add(1, "day");
+    }
+
+    // Get Toggl data for the last year
+    const startDate = rangeStartDate.format("YYYY-MM-DD");
+    const endDate = rangeEndDate.format("YYYY-MM-DD");
+    const togglCsv = await service.toggl.getCSVReport(startDate, endDate);
+    const togglCalendarData = calendarDataFromTogglEntries(togglCsv);
+
+    return {
+      intervals,
+      reviewsStats,
+      togglCalendarData,
+      plotData,
+      mistakesData,
+      deckNamesAndIds,
+    };
   }
 }
 
-const dashboardService = new DashboardService();
-export default dashboardService;
+export default DashboardService;

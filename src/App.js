@@ -6,12 +6,16 @@ import AnkiHabitCalendar from "./components/AnkiHabitCalendar";
 import VocabProgressChart from "./components/VocabProgressChart";
 import LoadingSpinner from "./components/LoadingSpinner";
 import AnkiMistakesCalendar from "./components/AnkiMistakesCalendar";
+import DeckSelector from "./components/DeckSelector";
 
 function App({
   wordsMemorised,
   ankiStats,
   plotData,
   mistakesData,
+  deckNamesAndIds,
+  selectedDecks,
+  onDecksChange,
   isLoading,
   error,
 }) {
@@ -40,27 +44,52 @@ function App({
     <div className="App">
       <header className="App-header">
         <img src={logo} className="App-logo" alt="logo" />
-        <p>Words memorised: {wordsMemorised || 0} / 1000</p>
         <div className="dashboard-section">
-          <h2>Vocab Learning Progress</h2>
-          {hasValidData ? (
-            <VocabProgressChart data={plotData} mistakesData={mistakesData} />
-          ) : (
-            <div>No data available</div>
-          )}
+          <h2>Select Anki Decks</h2>
+          <DeckSelector
+            decks={deckNamesAndIds || {}}
+            selectedDecks={selectedDecks}
+            onChange={onDecksChange}
+          />
         </div>
-        <div className="dashboard-section">
-          <h2>Anki Review Hardness</h2>
-          {hasValidData ? (
-            <AnkiMistakesCalendar mistakesData={mistakesData} />
-          ) : (
-            <div>No data available</div>
-          )}
-        </div>
-        <div className="dashboard-section">
-          <h2>Anki Reviews Intensity</h2>
-          <AnkiHabitCalendar ankiStats={ankiStats || []} />
-        </div>
+        {selectedDecks.length > 0 && (
+          <>
+            <div className="words-memorized">
+              Words memorised:{" "}
+              {Array.isArray(wordsMemorised)
+                ? wordsMemorised.filter((interval) => interval >= 7).length
+                : 0}
+            </div>
+            <div className="dashboard-section">
+              <h2>Vocab Learning Progress</h2>
+              {hasValidData ? (
+                <VocabProgressChart
+                  data={plotData}
+                  mistakesData={mistakesData}
+                />
+              ) : (
+                <div>No data available</div>
+              )}
+            </div>
+            <div className="dashboard-section">
+              <h2>Anki Review Hardness</h2>
+              {hasValidData ? (
+                <AnkiMistakesCalendar mistakesData={mistakesData} />
+              ) : (
+                <div>No data available</div>
+              )}
+            </div>
+            <div className="dashboard-section">
+              <h2>Anki Reviews Intensity</h2>
+              <AnkiHabitCalendar ankiStats={ankiStats || []} />
+            </div>
+          </>
+        )}
+        {selectedDecks.length === 0 && (
+          <div className="dashboard-section">
+            <p>Please select one or more Anki decks to view statistics</p>
+          </div>
+        )}
       </header>
     </div>
   );

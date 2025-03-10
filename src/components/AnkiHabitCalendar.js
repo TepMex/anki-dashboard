@@ -50,17 +50,36 @@ function titleForValue(item) {
   return `${item.date}:\n${item.count} cards was reviewed`;
 }
 
-function AnkiHabitCalendar({ ankiStats }) {
+function AnkiHabitCalendar({ ankiStats = [] }) {
   const startDate = moment().add(-2, "year");
   const endDate = moment();
+
+  // Handle empty or invalid ankiStats
+  if (!Array.isArray(ankiStats) || ankiStats.length === 0) {
+    return (
+      <div className="widget-container">
+        <ReactCalendarHeatmap
+          startDate={startDate}
+          endDate={endDate}
+          values={[]}
+          classForValue={() => "color-empty"}
+          titleForValue={titleForValue}
+        />
+      </div>
+    );
+  }
+
   let stats = ankiStats
     .map(convertAnkiStatToObj)
     .filter(filterAnkiStatsLastYear(startDate, endDate));
-  const maxReviews = ankiStats
-    .map((e) => e[1])
-    .reduce((a, b) => Math.max(a, b));
+
+  const maxReviews =
+    ankiStats.length > 0
+      ? ankiStats.map((e) => e[1]).reduce((a, b) => Math.max(a, b), 0)
+      : 0;
+
   return (
-    <div className="calendar-container">
+    <div className="widget-container">
       <ReactCalendarHeatmap
         startDate={startDate}
         endDate={endDate}

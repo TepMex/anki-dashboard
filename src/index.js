@@ -9,22 +9,26 @@ function Dashboard() {
   const [data, setData] = useState(null);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState(null);
+  const [selectedDecks, setSelectedDecks] = useState([]);
 
   useEffect(() => {
     async function loadData() {
       try {
-        const dashboardData = await DashboardService.loadDashboardData();
-        console.log("Loaded dashboard data:", dashboardData); // Debug log
+        setIsLoading(true);
+        const dashboardData = await DashboardService.loadDashboardData(
+          selectedDecks
+        );
+        console.log("Loaded dashboard data:", dashboardData);
         setData(dashboardData);
       } catch (err) {
-        console.error("Error loading dashboard data:", err); // Debug log
+        console.error("Error loading dashboard data:", err);
         setError(err);
       } finally {
         setIsLoading(false);
       }
     }
     loadData();
-  }, []);
+  }, [selectedDecks]);
 
   return (
     <React.StrictMode>
@@ -34,6 +38,9 @@ function Dashboard() {
         togglData={data?.togglCalendarData}
         plotData={data?.plotData}
         mistakesData={data?.mistakesData}
+        deckNamesAndIds={data?.deckNamesAndIds}
+        selectedDecks={selectedDecks}
+        onDecksChange={setSelectedDecks}
         isLoading={isLoading}
         error={error}
       />

@@ -7,69 +7,117 @@ export function VocabProgressChart({ data = [], mistakesData = [] }) {
 
   const options = {
     chart: {
-      width: "100%",
+      type: "line",
       height: 350,
+      background: "#2a2a2a",
       toolbar: {
         show: false,
+      },
+      animations: {
+        enabled: true,
+        easing: "easeinout",
+        speed: 800,
       },
     },
     xaxis: {
       categories: data.map((d) => d[0]),
       type: "datetime",
+      labels: {
+        style: {
+          colors: "#aaa",
+        },
+      },
     },
     yaxis: [
       {
         title: {
           text: "Words Learned",
+          style: {
+            color: "#aaa",
+          },
+        },
+        labels: {
+          style: {
+            colors: "#aaa",
+          },
         },
       },
       {
         opposite: true,
         title: {
           text: "Review Mistakes",
+          style: {
+            color: "#aaa",
+          },
+        },
+        labels: {
+          style: {
+            colors: "#aaa",
+          },
         },
         min: 0,
       },
     ],
-    colors: ["#ff8080", "#ff4d4d"],
+    colors: ["rgba(255, 64, 64, 0.8)", "rgba(255, 64, 64, 0.4)"],
     theme: {
       mode: "dark",
     },
     stroke: {
-      width: [2, 0],
+      width: [3, 0],
       curve: "smooth",
+      lineCap: "round",
     },
     fill: {
       type: ["gradient", "solid"],
       gradient: {
         shade: "dark",
         type: "vertical",
-        opacityFrom: 0.5,
+        opacityFrom: 0.4,
         opacityTo: 0.1,
         colorStops: [
           {
             offset: 0,
-            color: "#ff8080",
-            opacity: 0.5,
+            color: "rgba(255, 64, 64, 0.8)",
+            opacity: 0.4,
           },
           {
             offset: 100,
-            color: "#ff8080",
+            color: "rgba(255, 64, 64, 0.8)",
             opacity: 0.1,
           },
         ],
       },
-      opacity: [1, 0.7],
+      opacity: [0.8, 0.4],
     },
     legend: {
       labels: {
-        colors: "#ffffff",
+        colors: "#aaa",
       },
+    },
+    grid: {
+      borderColor: "#333",
+      strokeDashArray: 3,
+      background: "#2a2a2a",
     },
     plotOptions: {
       bar: {
         columnWidth: "50%",
-        borderRadius: 2,
+        borderRadius: 3,
+        colors: {
+          ranges: [
+            {
+              from: 0,
+              to: 100,
+              color: "rgba(255, 64, 64, 0.4)",
+            },
+          ],
+        },
+      },
+    },
+    tooltip: {
+      theme: "dark",
+      x: {
+        format: "dd MMM yyyy",
       },
     },
     responsive: [
@@ -77,7 +125,10 @@ export function VocabProgressChart({ data = [], mistakesData = [] }) {
         breakpoint: 1000,
         options: {
           chart: {
-            width: "100%",
+            height: 300,
+          },
+          legend: {
+            position: "bottom",
           },
         },
       },
@@ -98,14 +149,8 @@ export function VocabProgressChart({ data = [], mistakesData = [] }) {
   ];
 
   return (
-    <div style={{ width: "100%" }}>
-      <Chart
-        options={options}
-        series={series}
-        type="line"
-        width="100%"
-        height={350}
-      />
+    <div className="widget-container">
+      <Chart options={options} series={series} type="line" height={350} />
     </div>
   );
 }
