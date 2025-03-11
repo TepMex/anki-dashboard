@@ -3,12 +3,14 @@ import logo from "./assets/logo.svg";
 import "./styles/App.css";
 import "./styles/LoadingSpinner.css";
 import "./styles/ProgressBar.css";
+import "./styles/DateRangePicker.css";
 import AnkiHabitCalendar from "./components/AnkiHabitCalendar";
 import VocabProgressChart from "./components/VocabProgressChart";
 import LoadingSpinner from "./components/LoadingSpinner";
 import AnkiMistakesCalendar from "./components/AnkiMistakesCalendar";
 import DeckSelector from "./components/DeckSelector";
 import ProgressBar from "./components/ProgressBar";
+import DateRangePicker from "./components/DateRangePicker";
 
 function App({
   wordsMemorised,
@@ -19,6 +21,7 @@ function App({
   deckNamesAndIds,
   selectedDecks,
   onDecksChange,
+  onDateRangeChange,
   isLoading,
   error,
   totalCards,
@@ -68,6 +71,10 @@ function App({
               memorizedCount={memorizedCount}
               totalCards={totalCards}
             />
+            <div className="dashboard-section">
+              <h2>Date Range</h2>
+              <DateRangePicker onRangeChange={onDateRangeChange} />
+            </div>
             <div className="dashboard-section">
               <h2>Vocab Learning Progress</h2>
               {hasValidData ? (

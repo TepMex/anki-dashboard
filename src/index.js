@@ -4,6 +4,7 @@ import "./styles/index.css";
 import "react-calendar-heatmap/dist/styles.css";
 import App from "./App";
 import DashboardService from "./services/DashboardService";
+import moment from "moment";
 
 const STORAGE_KEY = "selectedAnkiDecks";
 
@@ -11,6 +12,10 @@ function Dashboard() {
   const [data, setData] = useState(null);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState(null);
+  const [dateRange, setDateRange] = useState({
+    startDate: moment().subtract(2, "years").toDate(),
+    endDate: new Date(),
+  });
   const [selectedDecks, setSelectedDecks] = useState(() => {
     // Initialize from localStorage
     const savedDecks = localStorage.getItem(STORAGE_KEY);
@@ -27,7 +32,9 @@ function Dashboard() {
       try {
         setIsLoading(true);
         const dashboardData = await DashboardService.loadDashboardData(
-          selectedDecks
+          selectedDecks,
+          dateRange.startDate,
+          dateRange.endDate
         );
         console.log("Loaded dashboard data:", dashboardData);
         setData(dashboardData);
@@ -39,7 +46,11 @@ function Dashboard() {
       }
     }
     loadData();
-  }, [selectedDecks]);
+  }, [selectedDecks, dateRange]);
+
+  const handleDateRangeChange = (startDate, endDate) => {
+    setDateRange({ startDate, endDate });
+  };
 
   return (
     <React.StrictMode>
@@ -53,6 +64,7 @@ function Dashboard() {
         deckNamesAndIds={data?.deckNamesAndIds}
         selectedDecks={selectedDecks}
         onDecksChange={setSelectedDecks}
+        onDateRangeChange={handleDateRangeChange}
         isLoading={isLoading}
         error={error}
         totalCards={data?.totalCards || 0}

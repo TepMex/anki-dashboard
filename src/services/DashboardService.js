@@ -1,7 +1,7 @@
 import AnkiConnect from "./AnkiConnect";
 import TogglTrackConnector from "./TogglTrackConnector";
 import moment from "moment";
-import { cardsByFirstReview, calendarDataFromTogglEntries } from "../utils";
+import { cardsByFirstReview } from "../utils";
 
 class DashboardService {
   constructor() {
@@ -9,7 +9,7 @@ class DashboardService {
     this.toggl = new TogglTrackConnector();
   }
 
-  static async loadDashboardData(selectedDecks = []) {
+  static async loadDashboardData(selectedDecks = [], startDate, endDate) {
     const service = new DashboardService();
 
     // Get all deck names and IDs if no decks are selected
@@ -57,20 +57,9 @@ class DashboardService {
     const plotData = [];
     const mistakesData = [];
 
-    // Use the earliest review date as the start date
-    let firstReviewDate = null;
-    for (const entry of Object.entries(cardReviews)) {
-      for (const review of entry[1]) {
-        const reviewDate = moment(review.id);
-        if (!firstReviewDate || reviewDate.isBefore(firstReviewDate)) {
-          firstReviewDate = reviewDate;
-        }
-      }
-    }
-
-    const rangeStartDate = moment().subtract(1, "year");
-    const rangeEndDate = moment();
-    let currentDate = firstReviewDate || rangeStartDate;
+    const rangeStartDate = moment(startDate); //.subtract(1, "year");
+    const rangeEndDate = moment(endDate);
+    let currentDate = rangeStartDate;
 
     // Process reviewsStats into a map for easier lookup
     const reviewsMap = new Map(
@@ -93,16 +82,9 @@ class DashboardService {
       reviewsMap.get(date) || 0,
     ]);
 
-    // Get Toggl data for the last year
-    const startDate = rangeStartDate.format("YYYY-MM-DD");
-    const endDate = rangeEndDate.format("YYYY-MM-DD");
-    const togglCsv = await service.toggl.getCSVReport(startDate, endDate);
-    const togglCalendarData = calendarDataFromTogglEntries(togglCsv);
-
     return {
       intervals,
       reviewsStats,
-      togglCalendarData,
       plotData,
       mistakesData,
       reviewsData,
